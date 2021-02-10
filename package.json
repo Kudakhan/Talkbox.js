@@ -15,7 +15,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "axios": "^0.21.1",
-    "worker-threads-pool": "^2.0.0",
+    "winston": "^3.3.3",
     "ws": "^7.4.3"
   }
 }

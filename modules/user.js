@@ -19,9 +19,12 @@ export class UserError extends Error {
 }
 
 export class User {
-    constructor (socket, registeredNames) {
+    constructor (socket, registeredUsers) {
+        if (this._userExists(socket, registeredUsers))
+            return this._getUser(socket, registeredUsers)
+
         this.socket = socket
-        this.username = this._genUsername(registeredNames)
+        this.username = this._genUsername(registeredUsers)
     }
 
     send (data) {
@@ -36,13 +39,35 @@ export class User {
         )
     }
 
-    _genUsername (registeredNames) {
+    _userExists (socket, registeredUsers) {
+        let result = false
+
+        registeredUsers.forEach((val, key) => {
+            if (val.socket === socket)
+                result = true
+        })
+
+        return result
+    }
+
+    _genUser (socket, registeredUsers) {
+        let user = null
+
+        registeredUsers.forEach((val, key) => {
+            if (val.socket === socket)
+                user = registeredUsers.get(key)
+        })
+
+        return user
+    }
+
+    _genUsername (registeredUsers) {
         const username = Math.random()
             .toString(36)
             .substring(8)
         
-        if (registeredNames.includes(username))
-            return this._genUsername(registeredNames)
+        if (registeredUsers.keys().includes(username))
+            return this._genUsername(registeredUsers)
         
         return username
     }

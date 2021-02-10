@@ -2,7 +2,9 @@ import { User, UserError } from './user.js'
 import { Endpoint, EndpointError } from './endpoint.js'
 
 export class SessionManager {
-    constructor () {
+    constructor (http, logger) {
+        this.http = http
+        this.log = logger
         this.users = new Map()
         this.endpoints = new Map()
     }
@@ -42,9 +44,22 @@ export class SessionManager {
         })
     }
 
+    getUsername (socket) {
+        let username = null
+
+        this.users.forEach((val, key) => {
+            if (val.socket === socket)
+                username = val.username
+        })
+
+        return username
+    }
+
     addUser (socket) {
-        const user = new User(socket, this.users.keys())
-        this.users.set(user.username, user)
+        const user = new User(socket, this.users)
+
+        if (!this.users.has(user.username))
+            this.users.set(user.username, user)
 
         return user.username
     }
@@ -61,9 +76,8 @@ export class SessionManager {
     }
 
     removeSocket (socket) {
-        this.users.forEach((val, key) => {
-            if (val.socket === socket)
-                this.user.delete(key)
-        })
+        const username = this.getUsername(socket)
+
+        this.removeUser(username)
     }
 }
