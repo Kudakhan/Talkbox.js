@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Automatically poll the Recent Changes feeds of FANDOM wikis and syndicate them into websocket subscriptions.",
   "main": "index.mjs",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
