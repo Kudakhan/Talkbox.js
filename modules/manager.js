@@ -1,6 +1,26 @@
 import { User, UserError } from './user.js'
 import { Endpoint, EndpointError } from './endpoint.js'
 
+export class SessionError extends Error {
+    constructor (type, ...params) {
+        super(...params)
+
+        if (Error.captureStackTrace)
+            Error.captureStackTrace(this, SessionError)
+
+        this.name = 'SessionError'
+        this.type = type
+        this.date = new Date()
+        this.xport = JSON.stringify({
+            status: 'error',
+            error: {
+                type: type,
+                message: this.message
+            }
+        })
+    }
+}
+
 export class SessionManager {
     constructor (http, logger) {
         this.http = http
@@ -29,6 +49,7 @@ export class SessionManager {
     removeEndpoint (endpoint) {
         if (this.endpoints.has(endpoint)) {
             this.endpoints.delete(endpoint)
+            return
         }
 
         throw new EndpointError(
@@ -58,8 +79,12 @@ export class SessionManager {
     addUser (socket) {
         const user = new User(socket, this.users)
 
-        if (!this.users.has(user.username))
+        if (!this.users.has(user.username)) {
+            this.log.info(`Created new user: ${user.username}`)
             this.users.set(user.username, user)
+        } else {
+            this.log.info(`Found existing user: ${user.username}`)
+        }
 
         return user.username
     }
@@ -67,6 +92,8 @@ export class SessionManager {
     removeUser (username) {
         if (this.users.has(username)) {
             this.users.delete(username)
+            this.log.info(`Removed user: ${username}`)
+            return
         }
 
         throw new UserError(
@@ -78,6 +105,15 @@ export class SessionManager {
     removeSocket (socket) {
         const username = this.getUsername(socket)
 
-        this.removeUser(username)
+        if (username) {
+            this.log.info(`Found user for socket: ${username}`)
+            this.removeUser(username)
+        } else {
+            this.log.info(`Could not find user for socket`)
+            throw new SessionError(
+                'no-user',
+                'Could not find a username associated with the socket'
+            )
+        }
     }
 }

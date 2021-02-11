@@ -66,7 +66,7 @@ export class User {
             .toString(36)
             .substring(8)
         
-        if (registeredUsers.keys().includes(username))
+        if (Array.from(registeredUsers.keys()).includes(username))
             return this._genUsername(registeredUsers)
         
         return username

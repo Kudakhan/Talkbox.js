@@ -1,5 +1,5 @@
 {
-  "name": "Talkbox",
+  "name": "talkbox",
   "version": "1.0.0",
   "description": "Automatically poll the Recent Changes feeds of FANDOM wikis and syndicate them into websocket subscriptions.",
   "main": "index.mjs",
